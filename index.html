@@ -9,7 +9,7 @@
 body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0d1117; color: #c9d1d9; }
 input, select, button { font-family: inherit; }
 .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .stat-num { font-size: 24px; font-weight: 700; }
 .stat-label { font-size: 13px; color: #8b949e; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
@@ -22,8 +22,10 @@ input, select, button { font-family: inherit; }
 .btn-red:hover { background: #f85149; }
 .btn-sec { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
 .btn-sec:hover { background: #30363d; }
+.btn-org { background: #d29922; color: #fff; }
+.btn-org:hover { background: #e3b341; }
 table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 10px 12px; font-size: 12px; color: #8b949e; border-bottom: 1px solid #21262d; cursor: pointer; }
+th { text-align: left; padding: 10px 12px; font-size: 12px; color: #8b949e; border-bottom: 1px solid #21262d; cursor: pointer; white-space: nowrap; }
 th:hover { color: #c9d1d9; }
 td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #21262d; }
 tr:hover td { background: #1c2128; }
@@ -31,10 +33,12 @@ tr:hover td { background: #1c2128; }
 .badge-active { background: #1b3a2d; color: #3fb950; }
 .badge-revoked { background: #3d1f1e; color: #f85149; }
 .badge-unused { background: #3d2e00; color: #d29922; }
-.key-txt { font-family: monospace; font-size: 12px; color: #f0883e; }
-.hwid-txt { font-family: monospace; font-size: 11px; color: #58a6ff; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key-txt { font-family: monospace; font-size: 12px; color: #f0883e; cursor: pointer; }
+.key-txt:hover { color: #ffa657; text-decoration: underline; }
+.hwid-txt { font-family: monospace; font-size: 11px; color: #58a6ff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
 .small { font-size: 11px; color: #8b949e; }
-.actions { display: flex; gap: 4px; }
+.ip-txt { font-family: monospace; font-size: 11px; color: #8b949e; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+.actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .msg { font-size: 12px; color: #3fb950; margin-top: 4px; }
 .msg.err { color: #f85149; }
 .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
@@ -57,9 +61,20 @@ tr:hover td { background: #1c2128; }
 .fbtn.on { background: #1f6feb; border-color: #1f6feb; color: #fff; }
 .sbox { padding: 6px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px; width: 200px; }
 .sbox:focus { border-color: #58a6ff; outline: none; }
+.pages { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.pbtn { padding: 4px 10px; background: #21262d; border: 1px solid #30363d; border-radius: 4px; color: #8b949e; font-size: 12px; cursor: pointer; }
+.pbtn:hover { border-color: #58a6ff; color: #c9d1d9; }
+.pbtn.cur { background: #1f6feb; border-color: #1f6feb; color: #fff; cursor: default; }
+.gen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .gen-grid { grid-template-columns: 1fr; } }
+.cbox { width: 16px; height: 16px; cursor: pointer; accent-color: #58a6ff; }
+.copied-msg { position: fixed; bottom: 20px; right: 20px; background: #238636; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; }
+.copied-msg.show { opacity: 1; }
 </style>
 </head>
 <body>
+
+<div id="copiedToast" class="copied-msg">Copied!</div>
 
 <div id="loginScreen" class="login-wrap">
   <div class="login-box">
@@ -76,6 +91,7 @@ tr:hover td { background: #1c2128; }
     <h1>Key System</h1>
     <div style="display:flex;align-items:center;gap:12px">
       <span class="small" id="headerStats"></span>
+      <span class="small" id="dbStatus" style="color:#8b949e"></span>
       <button class="btn btn-sec" onclick="logout()">Logout</button>
     </div>
   </div>
@@ -88,22 +104,33 @@ tr:hover td { background: #1c2128; }
     </div>
 
     <div class="card" style="margin-bottom:16px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="gen-grid">
         <div>
           <div class="small" style="margin-bottom:6px">Generate Key</div>
-          <div class="row">
-            <input type="datetime-local" id="genExpires" style="flex:1">
-            <input type="text" id="genNote" placeholder="note" style="flex:1">
-            <button class="btn btn-pri" onclick="generateKey()">Generate</button>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:8px">
+              <input type="text" id="genNote" placeholder="note" style="flex:1">
+              <input type="number" id="genMaxUses" placeholder="max uses" style="width:90px" min="0">
+            </div>
+            <div style="display:flex;gap:8px">
+              <input type="datetime-local" id="genExpires" style="flex:1">
+              <button class="btn btn-pri" onclick="generateKey()" style="white-space:nowrap">Generate</button>
+            </div>
           </div>
           <div class="msg" id="genResult"></div>
         </div>
         <div>
           <div class="small" style="margin-bottom:6px">Bulk Generate</div>
-          <div class="row">
-            <input type="number" id="bulkCount" value="5" min="1" max="100" style="width:60px">
-            <input type="datetime-local" id="bulkExpires" style="flex:1">
-            <button class="btn btn-pri" onclick="bulkGenerate()">Generate x<span id="bulkLabel">5</span></button>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:8px">
+              <input type="number" id="bulkCount" value="5" min="1" max="100" style="width:60px">
+              <input type="text" id="bulkNote" placeholder="note" style="flex:1">
+              <input type="number" id="bulkMaxUses" placeholder="max uses" style="width:90px" min="0">
+            </div>
+            <div style="display:flex;gap:8px">
+              <input type="datetime-local" id="bulkExpires" style="flex:1">
+              <button class="btn btn-pri" onclick="bulkGenerate()">Generate x<span id="bulkLabel">5</span></button>
+            </div>
           </div>
           <div class="msg" id="bulkResult"></div>
         </div>
@@ -136,37 +163,53 @@ tr:hover td { background: #1c2128; }
         <button class="fbtn" onclick="setFilter('revoked',this)">Revoked</button>
         <button class="fbtn" onclick="setFilter('activated',this)">Activated</button>
         <button class="fbtn" onclick="setFilter('unactivated',this)">Unactivated</button>
+        <button class="btn btn-org" onclick="exportCSV()" style="font-size:12px;padding:6px 10px">CSV</button>
+        <button class="btn btn-sec" onclick="purgeExpired()" style="font-size:12px;padding:6px 10px">Purge Expired</button>
       </div>
-      <input type="text" class="sbox" id="searchBox" placeholder="Search..." oninput="render()">
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="bulkRevokeBtn" class="btn btn-red" style="font-size:11px;padding:4px 8px;display:none" onclick="bulkRevoke()">Revoke Selected</button>
+        <button id="bulkDeleteBtn" class="btn btn-red" style="font-size:11px;padding:4px 8px;display:none" onclick="bulkDelete()">Delete Selected</button>
+        <input type="text" class="sbox" id="searchBox" placeholder="Search..." oninput="searchChanged()">
+      </div>
     </div>
 
     <div class="card" style="padding:0;overflow-x:auto">
       <table>
         <thead>
           <tr>
+            <th style="width:30px"><input type="checkbox" class="cbox" id="selectAll" onchange="toggleAll()"></th>
             <th onclick="sortBy('key')">Key</th>
             <th onclick="sortBy('status')">Status</th>
             <th onclick="sortBy('hwid')">HWID</th>
             <th onclick="sortBy('note')">Note</th>
+            <th onclick="sortBy('maxUses')">Uses</th>
             <th onclick="sortBy('createdAt')">Created</th>
             <th onclick="sortBy('expires')">Expires</th>
             <th onclick="sortBy('lastSeen')">Last Seen</th>
-            <th onclick="sortBy('usageCount')">Uses</th>
+            <th onclick="sortBy('lastIp')">Last IP</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
     </div>
+
+    <div id="pagination" class="tbar" style="margin-top:12px"></div>
   </div>
 </div>
 
 <script>
+var allKeys = [];
 var keys = [];
 var filter = "all";
 var sf = "createdAt";
 var sd = -1;
 var token = localStorage.getItem("token");
+var curPage = 1;
+var totalKeys = 0;
+var totalPages = 1;
+var pageSize = 50;
+var searchTimer = null;
 
 function api(path, body) {
   return fetch(path, {
@@ -219,43 +262,35 @@ function load() {
     document.getElementById("statUnused").textContent = s.unactivated || 0;
     document.getElementById("headerStats").textContent = (s.total || 0) + " keys";
   });
-  api("/api/list", {}).then(function(r) {
-    if (r.success) { keys = r.keys; render(); }
+  api("/api/db-status", {}).then(function(r) {
+    document.getElementById("dbStatus").textContent = "DB: " + (r.database || "?");
   });
+  fetchKeys();
 }
 
-function setFilter(f, btn) {
-  filter = f;
-  var btns = document.querySelectorAll(".fbtn");
-  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("on");
-  btn.classList.add("on");
-  render();
-}
-
-function sortBy(field) {
-  if (sf === field) sd *= -1;
-  else { sf = field; sd = -1; }
-  render();
+function fetchKeys() {
+  var search = document.getElementById("searchBox").value;
+  api("/api/list", { filter: filter, page: curPage, limit: pageSize, search: search || undefined }).then(function(r) {
+    if (r.success) {
+      allKeys = r.keys;
+      totalKeys = r.total;
+      totalPages = r.pages || 1;
+      render();
+    }
+  });
 }
 
 function render() {
   var search = document.getElementById("searchBox").value.toLowerCase();
-  var f = keys;
+  var tbody = document.getElementById("tableBody");
 
-  if (filter === "active") f = f.filter(function(k) { return !k.revoked; });
-  else if (filter === "revoked") f = f.filter(function(k) { return k.revoked; });
-  else if (filter === "activated") f = f.filter(function(k) { return k.activated; });
-  else if (filter === "unactivated") f = f.filter(function(k) { return !k.activated; });
-
-  if (search) {
-    f = f.filter(function(k) {
-      return k.key.toLowerCase().includes(search) ||
-        (k.hwid && k.hwid.toLowerCase().includes(search)) ||
-        (k.note && k.note.toLowerCase().includes(search));
-    });
+  if (allKeys.length === 0) {
+    tbody.innerHTML = "<tr><td colspan=\"11\" style=\"text-align:center;padding:32px;color:#8b949e\">No keys found</td></tr>";
+    renderPagination();
+    return;
   }
 
-  f.sort(function(a, b) {
+  allKeys.sort(function(a, b) {
     var va = a[sf], vb = b[sf];
     if (sf === "status") {
       va = a.revoked ? "revoked" : a.activated ? "active" : "unused";
@@ -266,31 +301,29 @@ function render() {
     return va < vb ? sd : va > vb ? -sd : 0;
   });
 
-  var tbody = document.getElementById("tableBody");
-  if (f.length === 0) {
-    tbody.innerHTML = "<tr><td colspan=\"9\" style=\"text-align:center;padding:32px;color:#8b949e\">No keys found</td></tr>";
-    return;
-  }
-
   var html = "";
-  for (var i = 0; i < f.length; i++) {
-    var k = f[i];
+  for (var i = 0; i < allKeys.length; i++) {
+    var k = allKeys[i];
     var st = k.revoked ? "revoked" : k.activated ? "active" : "unused";
     var sl = k.revoked ? "Revoked" : k.activated ? "Active" : "Unused";
     var exp = k.expires ? new Date(k.expires).toLocaleString() : "-";
     var cre = k.createdAt ? new Date(k.createdAt).toLocaleString() : "-";
     var last = k.lastSeen ? new Date(k.lastSeen).toLocaleString() : "-";
     var hw = k.hwid || "-";
+    var ip = k.lastIp || "-";
+    var uses = (k.maxUses ? (k.usageCount || 0) + "/" + k.maxUses : String(k.usageCount || 0));
 
     html += "<tr>";
-    html += "<td class=\"key-txt\">" + k.key + "</td>";
+    html += "<td><input type=\"checkbox\" class=\"cbox\" value=\"" + k.key + "\" onchange=\"updateBulkBtns()\"></td>";
+    html += "<td class=\"key-txt\" onclick=\"copyKey('" + k.key + "')\" title=\"Click to copy\">" + k.key + "</td>";
     html += "<td><span class=\"badge badge-" + st + "\">" + sl + "</span></td>";
     html += "<td class=\"hwid-txt\" title=\"" + (k.hwid || "") + "\">" + hw + "</td>";
     html += "<td class=\"small\">" + (k.note || "-") + "</td>";
+    html += "<td style=\"text-align:center;color:#8b949e;font-size:12px\">" + uses + "</td>";
     html += "<td class=\"small\">" + cre + "</td>";
     html += "<td class=\"small\">" + exp + "</td>";
     html += "<td class=\"small\">" + last + "</td>";
-    html += "<td style=\"text-align:center;color:#8b949e;font-size:12px\">" + (k.usageCount || 0) + "</td>";
+    html += "<td class=\"ip-txt\" title=\"" + (k.lastIp || "") + "\">" + ip + "</td>";
     html += "<td class=\"actions\">";
     if (k.revoked) {
       html += "<button class=\"btn btn-pri\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doUnrevoke('" + k.key + "')\">Restore</button>";
@@ -302,6 +335,131 @@ function render() {
     html += "</td></tr>";
   }
   tbody.innerHTML = html;
+  document.getElementById("selectAll").checked = false;
+  updateBulkBtns();
+  renderPagination();
+}
+
+function renderPagination() {
+  var el = document.getElementById("pagination");
+  if (totalPages <= 1) { el.innerHTML = ""; return; }
+  var html = "<div class=\"pages\">";
+  html += "<span class=\"small\" style=\"margin-right:8px\">Page " + curPage + "/" + totalPages + " (" + totalKeys + " total)</span>";
+
+  if (curPage > 1) html += "<button class=\"pbtn\" onclick=\"goPage(1)\">First</button>";
+  if (curPage > 1) html += "<button class=\"pbtn\" onclick=\"goPage(" + (curPage - 1) + ")\">Prev</button>";
+
+  var start = Math.max(1, curPage - 2);
+  var end = Math.min(totalPages, curPage + 2);
+  for (var p = start; p <= end; p++) {
+    html += "<button class=\"pbtn" + (p === curPage ? " cur" : "") + "\" onclick=\"goPage(" + p + ")\">" + p + "</button>";
+  }
+
+  if (curPage < totalPages) html += "<button class=\"pbtn\" onclick=\"goPage(" + (curPage + 1) + ")\">Next</button>";
+  if (curPage < totalPages) html += "<button class=\"pbtn\" onclick=\"goPage(" + totalPages + ")\">Last</button>";
+  html += "</div>";
+  el.innerHTML = html;
+}
+
+function goPage(p) {
+  curPage = p;
+  fetchKeys();
+}
+
+function searchChanged() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(function() { curPage = 1; fetchKeys(); }, 300);
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  curPage = 1;
+  var btns = document.querySelectorAll(".fbtn");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("on");
+  btn.classList.add("on");
+  fetchKeys();
+}
+
+function sortBy(field) {
+  if (sf === field) sd *= -1;
+  else { sf = field; sd = -1; }
+  render();
+}
+
+function toggleAll() {
+  var checked = document.getElementById("selectAll").checked;
+  var boxes = document.querySelectorAll("#tableBody .cbox");
+  for (var i = 0; i < boxes.length; i++) boxes[i].checked = checked;
+  updateBulkBtns();
+}
+
+function updateBulkBtns() {
+  var boxes = document.querySelectorAll("#tableBody .cbox:checked");
+  var count = boxes.length;
+  document.getElementById("bulkRevokeBtn").style.display = count > 0 ? "inline-block" : "none";
+  document.getElementById("bulkDeleteBtn").style.display = count > 0 ? "inline-block" : "none";
+}
+
+function getSelectedKeys() {
+  var boxes = document.querySelectorAll("#tableBody .cbox:checked");
+  var keys = [];
+  for (var i = 0; i < boxes.length; i++) keys.push(boxes[i].value);
+  return keys;
+}
+
+function bulkRevoke() {
+  var keys = getSelectedKeys();
+  if (keys.length === 0) return;
+  if (!confirm("Revoke " + keys.length + " selected keys?")) return;
+  api("/api/bulk-revoke", { keys: keys }).then(function(r) {
+    if (r.success) load();
+  });
+}
+
+function bulkDelete() {
+  var keys = getSelectedKeys();
+  if (keys.length === 0) return;
+  if (!confirm("DELETE " + keys.length + " selected keys? This cannot be undone!")) return;
+  api("/api/bulk-delete", { keys: keys }).then(function(r) {
+    if (r.success) load();
+  });
+}
+
+function copyKey(key) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(key).then(function() {
+      showCopied();
+    });
+  } else {
+    var ta = document.createElement("textarea");
+    ta.value = key;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    showCopied();
+  }
+}
+
+function showCopied() {
+  var el = document.getElementById("copiedToast");
+  el.classList.add("show");
+  setTimeout(function() { el.classList.remove("show"); }, 1500);
+}
+
+function exportCSV() {
+  var search = document.getElementById("searchBox").value;
+  api("/api/export", { filter: filter === "all" ? undefined : filter, search: search || undefined }).then(function(r) {
+    if (r.success && r.csv) {
+      var blob = new Blob([r.csv], { type: "text/csv" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "keys.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  });
 }
 
 function doRevoke(key) { api("/api/revoke", { key: key }).then(load); }
@@ -312,18 +470,27 @@ function doDelete(key) { if (confirm("Delete " + key + "?")) api("/api/delete", 
 function generateKey() {
   var expires = document.getElementById("genExpires").value;
   var note = document.getElementById("genNote").value;
-  api("/api/generate", { expires: expires ? new Date(expires).toISOString() : null, note: note }).then(function(r) {
+  var maxUses = parseInt(document.getElementById("genMaxUses").value) || null;
+  api("/api/generate", { expires: expires ? new Date(expires).toISOString() : null, note: note, maxUses: maxUses }).then(function(r) {
     var el = document.getElementById("genResult");
-    el.textContent = r.success ? r.key : "error";
-    el.className = "msg" + (r.success ? "" : " err");
-    if (r.success) load();
+    if (r.success) {
+      el.textContent = r.key;
+      el.className = "msg";
+      copyKey(r.key);
+      load();
+    } else {
+      el.textContent = "error";
+      el.className = "msg err";
+    }
   });
 }
 
 function bulkGenerate() {
   var count = parseInt(document.getElementById("bulkCount").value) || 1;
   var expires = document.getElementById("bulkExpires").value;
-  api("/api/generate-bulk", { count: Math.min(count, 100), expires: expires ? new Date(expires).toISOString() : null }).then(function(r) {
+  var note = document.getElementById("bulkNote").value;
+  var maxUses = parseInt(document.getElementById("bulkMaxUses").value) || null;
+  api("/api/generate-bulk", { count: Math.min(count, 100), expires: expires ? new Date(expires).toISOString() : null, note: note, maxUses: maxUses }).then(function(r) {
     var el = document.getElementById("bulkResult");
     el.textContent = r.success ? "Generated " + r.count + " keys" : "error";
     el.className = "msg" + (r.success ? "" : " err");
@@ -372,6 +539,13 @@ function resetHWID() {
     el.textContent = r.success ? "HWID reset" : "Not found";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
+  });
+}
+
+function purgeExpired() {
+  if (!confirm("Delete all expired keys?")) return;
+  api("/api/purge-expired", {}).then(function(r) {
+    if (r.success) { load(); }
   });
 }
 
