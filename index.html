@@ -216,7 +216,10 @@ function api(path, body) {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-token": token },
     body: JSON.stringify(body)
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (r.status === 401) { logout(); return {}; }
+    return r.json();
+  });
 }
 
 if (token) {
