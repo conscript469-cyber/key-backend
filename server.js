@@ -921,16 +921,16 @@ function renderTable() {
   tbody.innerHTML = filtered.map(k => {
     const status = k.revoked ? 'revoked' : k.activated ? 'active' : 'unused';
     const statusLabel = k.revoked ? 'Revoked' : k.activated ? 'Active' : 'Unused';
-    const expires = k.expires ? new Date(k.expires).toLocaleString() : '—';
-    const created = k.createdAt ? new Date(k.createdAt).toLocaleString() : '—';
-    const lastSeen = k.lastSeen ? new Date(k.lastSeen).toLocaleString() : '—';
-    const hwid = k.hwid || '—';
+    const expires = k.expires ? new Date(k.expires).toLocaleString() : '-';
+    const created = k.createdAt ? new Date(k.createdAt).toLocaleString() : '-';
+    const lastSeen = k.lastSeen ? new Date(k.lastSeen).toLocaleString() : '-';
+    const hwid = k.hwid || '-';
 
     return '<tr>' +
       '<td class="key-cell">' + k.key + '</td>' +
       '<td><span class="status-badge ' + status + '">' + statusLabel + '</span></td>' +
       '<td class="hwid-cell" title="' + hwid + '">' + hwid + '</td>' +
-      '<td class="note-cell" title="' + (k.note || '') + '">' + (k.note || '—') + '</td>' +
+      '<td class="note-cell" title="' + (k.note || '') + '">' + (k.note || '-') + '</td>' +
       '<td style="font-size:11px;color:#888">' + created + '</td>' +
       '<td style="font-size:11px;color:' + (k.expires && new Date(k.expires) < Date.now() ? '#ef4444' : '#888') + '">' + expires + '</td>' +
       '<td style="font-size:11px;color:#888">' + lastSeen + '</td>' +
@@ -1072,7 +1072,7 @@ setInterval(loadData, 15000);
 
 // ── Serve Dashboard at root ────────────────────
 app.get("/", (req, res) => {
-  res.send(DASHBOARD_HTML);
+  res.type("text/html; charset=utf-8").send(DASHBOARD_HTML);
 });
 
 // ── Start ──────────────────────────────────────
