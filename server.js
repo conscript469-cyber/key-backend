@@ -420,7 +420,7 @@ app.post("/api/purge-expired", auth, async (req, res) => {
   } catch (e) { res.json({ success: false, message: "server error" }); }
 });
 
-app.get("/api/db-status", auth, async (req, res) => {
+app.post("/api/db-status", auth, async (req, res) => {
   var available = false;
   if (usingPg) {
     try {
@@ -436,7 +436,7 @@ app.get("/api/db-status", auth, async (req, res) => {
   res.json({ database: usingPg ? "PostgreSQL" : "JSON file", usingPg, available });
 });
 
-app.get("/api/stats", auth, async (req, res) => {
+app.post("/api/stats", auth, async (req, res) => {
   try {
     const keys = await allEntries();
     res.json({ total: keys.length, activated: keys.filter(k => k.activated).length, revoked: keys.filter(k => k.revoked).length, unactivated: keys.filter(k => !k.activated).length });
