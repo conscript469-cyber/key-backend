@@ -3,198 +3,762 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Key Admin</title>
+<title>panel // key system</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0d1117; color: #c9d1d9; }
-input, select, button { font-family: inherit; }
-.card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.stat-num { font-size: 24px; font-weight: 700; }
-.stat-label { font-size: 13px; color: #8b949e; }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-.row input, .row select { padding: 8px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; }
-.row input:focus, .row select:focus { border-color: #58a6ff; outline: none; }
-.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
-.btn-pri { background: #238636; color: #fff; }
-.btn-pri:hover { background: #2ea043; }
-.btn-red { background: #da3633; color: #fff; }
-.btn-red:hover { background: #f85149; }
-.btn-sec { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
-.btn-sec:hover { background: #30363d; }
-.btn-org { background: #d29922; color: #fff; }
-.btn-org:hover { background: #e3b341; }
-table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 10px 12px; font-size: 12px; color: #8b949e; border-bottom: 1px solid #21262d; cursor: pointer; white-space: nowrap; }
-th:hover { color: #c9d1d9; }
-td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #21262d; }
-tr:hover td { background: #1c2128; }
-.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
-.badge-active { background: #1b3a2d; color: #3fb950; }
-.badge-revoked { background: #3d1f1e; color: #f85149; }
-.badge-unused { background: #3d2e00; color: #d29922; }
-.key-txt { font-family: monospace; font-size: 12px; color: #f0883e; cursor: pointer; }
-.key-txt:hover { color: #ffa657; text-decoration: underline; }
-.hwid-txt { font-family: monospace; font-size: 11px; color: #58a6ff; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
-.small { font-size: 11px; color: #8b949e; }
-.ip-txt { font-family: monospace; font-size: 11px; color: #8b949e; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
-.actions { display: flex; gap: 4px; flex-wrap: wrap; }
-.msg { font-size: 12px; color: #3fb950; margin-top: 4px; }
-.msg.err { color: #f85149; }
-.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-.login-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 40px; width: 360px; text-align: center; }
-.login-box h1 { font-size: 22px; margin-bottom: 4px; }
-.login-box p { color: #8b949e; font-size: 13px; margin-bottom: 24px; }
-.login-box input { width: 100%; padding: 10px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; margin-bottom: 12px; }
-.login-box input:focus { border-color: #58a6ff; outline: none; }
-.login-box button { width: 100%; padding: 10px; background: #238636; border: none; border-radius: 6px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-.login-box button:hover { background: #2ea043; }
-.login-err { color: #f85149; font-size: 13px; margin-top: 10px; display: none; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0e0b12;
+  color: #dfdad5;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #0e0b12; }
+::-webkit-scrollbar-thumb { background: #363040; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4254; }
+
+input, select, button, textarea { font-family: inherit; }
+
+::selection { background: #b8962c; color: #0e0b12; }
+
+/* ── LOGIN ── */
+
+.login-wrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 30% 20%, #1a1425 0%, #0e0b12 70%);
+}
+
+.login-box {
+  background: #16121e;
+  border: 1px solid #2a2438;
+  border-radius: 4px;
+  padding: 48px 40px 40px;
+  width: 380px;
+  text-align: center;
+  position: relative;
+}
+
+.login-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #b8962c, #dbb042, #b8962c);
+}
+
+.login-box h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #b8962c;
+  margin-bottom: 4px;
+}
+
+.login-box p {
+  color: #6b6478;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #0e0b12;
+  border: 1px solid #2a2438;
+  border-radius: 4px;
+  color: #dfdad5;
+  font-size: 14px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+
+.login-box input:focus { border-color: #b8962c; outline: none; }
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background: #b8962c;
+  border: none;
+  border-radius: 4px;
+  color: #0e0b12;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-box button:hover { background: #d4aa3a; }
+
+.login-err { color: #ef4444; font-size: 12px; margin-top: 12px; display: none; }
+
+/* ── LAYOUT ── */
+
+.wrap {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 28px 48px;
+}
+
+/* ── HEADER ── */
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid #1e1929;
+  margin-bottom: 28px;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.top h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #b8962c;
+}
+
+.top h1 span { color: #4a4254; }
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b6478;
+}
+
+.top-right .db-badge {
+  padding: 4px 10px;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.top-right .logout-btn {
+  background: none;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  color: #6b6478;
+  padding: 6px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.top-right .logout-btn:hover {
+  border-color: #4a4254;
+  color: #dfdad5;
+}
+
+/* ── STATS ROW ── */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: #1e1929;
+  border: 1px solid #1e1929;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: #13101b;
+  padding: 20px 24px;
+}
+
+.stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: #dfdad5;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b6478;
+}
+
+.stat-card:nth-child(1) .stat-num { color: #b8962c; }
+.stat-card:nth-child(2) .stat-num { color: #65a30d; }
+.stat-card:nth-child(3) .stat-num { color: #ef4444; }
+.stat-card:nth-child(4) .stat-num { color: #6b6478; }
+
+/* ── SECTION ── */
+
+.sect {
+  background: #13101b;
+  border: 1px solid #1e1929;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.sect-h {
+  padding: 14px 20px;
+  border-bottom: 1px solid #1e1929;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6b6478;
+  background: #0e0b12;
+}
+
+.sect-b { padding: 20px; }
+
+/* ── GENERATE GRID ── */
+
+.gen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) { .gen-grid { grid-template-columns: 1fr; } }
+
+.gen-group { }
+
+.gen-group .gg-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b6478;
+  margin-bottom: 10px;
+}
+
+.in-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.in-row input, .in-row select {
+  padding: 9px 12px;
+  background: #0e0b12;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  color: #dfdad5;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.in-row input:focus, .in-row select:focus { border-color: #b8962c; outline: none; }
+
+.in-row input[type="text"] { flex: 1; }
+.in-row input[type="number"] { width: 80px; }
+.in-row input[type="datetime-local"] { flex: 1; }
+
+/* ── BUTTONS ── */
+
+.btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-gold { background: #b8962c; color: #0e0b12; }
+.btn-gold:hover { background: #d4aa3a; }
+
+.btn-red { background: #7f1d1d; color: #fca5a5; }
+.btn-red:hover { background: #991b1b; }
+
+.btn-green { background: #1a4a1a; color: #86ef86; }
+.btn-green:hover { background: #206020; }
+
+.btn-sec {
+  background: transparent;
+  color: #6b6478;
+  border: 1px solid #2a2438;
+}
+.btn-sec:hover { border-color: #4a4254; color: #dfdad5; }
+
+.btn-sm { padding: 5px 10px; font-size: 10px; }
+
+/* ── RESULT MSG ── */
+
+.msg {
+  margin-top: 6px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #86ef86;
+}
+
+.msg.err { color: #ef4444; }
+
+/* ── MANAGEMENT SECTION ── */
+
+.mgmt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 800px) { .mgmt-grid { grid-template-columns: 1fr; } }
+
+.mgmt-item .mi-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b6478;
+  margin-bottom: 10px;
+}
+
+.mgmt-item .in-row input { flex: 1; }
+
+.mgmt-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #4a4254;
+}
+
+/* ── TOOLBAR ── */
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.toolbar-left {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  color: #6b6478;
+  font-size: 11px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover { border-color: #4a4254; color: #dfdad5; }
+
+.filter-btn.on {
+  background: #b8962c;
+  border-color: #b8962c;
+  color: #0e0b12;
+  font-weight: 700;
+}
+
+.toolbar-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap input {
+  padding: 7px 12px 7px 30px;
+  background: #0e0b12;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  color: #dfdad5;
+  font-size: 12px;
+  width: 200px;
+  transition: border-color 0.2s;
+}
+
+.search-wrap input:focus { border-color: #b8962c; outline: none; }
+
+.search-wrap::before {
+  content: '\2192';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4a4254;
+  font-size: 12px;
+}
+
+/* ── TABLE ── */
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+thead th {
+  text-align: left;
+  padding: 11px 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b6478;
+  border-bottom: 1px solid #1e1929;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  font-weight: 600;
+}
+
+thead th:hover { color: #dfdad5; }
+
+tbody td {
+  padding: 11px 12px;
+  border-bottom: 1px solid #191528;
+  vertical-align: middle;
+}
+
+tbody tr:hover td { background: rgba(184, 150, 44, 0.03); }
+
+tbody tr:last-child td { border-bottom: none; }
+
+.empty-row td {
+  text-align: center;
+  padding: 40px 20px !important;
+  color: #4a4254;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cbox { width: 15px; height: 15px; cursor: pointer; accent-color: #b8962c; }
+
+.key-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #dbb042;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.key-cell:hover { color: #f0cc5a; text-decoration: underline; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-active { background: rgba(101, 163, 13, 0.15); color: #86ef86; }
+.badge-revoked { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
+.badge-unused { background: rgba(107, 100, 120, 0.2); color: #8a8298; }
+
+.hwid-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #8a8298;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.note-cell { color: #6b6478; font-size: 11px; }
+.uses-cell { color: #6b6478; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-align: center; }
+.date-cell { color: #6b6478; font-size: 11px; white-space: nowrap; }
+.ip-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #4a4254;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.action-cell { white-space: nowrap; }
+.action-cell .btn { margin-right: 3px; }
+
+/* ── PAGINATION ── */
+
+.pages {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 16px 0 0;
+}
+
+.page-info {
+  font-size: 11px;
+  color: #4a4254;
+  margin-right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.page-btn {
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid #2a2438;
+  border-radius: 3px;
+  color: #6b6478;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.page-btn:hover { border-color: #4a4254; color: #dfdad5; }
+
+.page-btn.cur {
+  background: #b8962c;
+  border-color: #b8962c;
+  color: #0e0b12;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* ── TOAST ── */
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: #b8962c;
+  color: #0e0b12;
+  padding: 10px 20px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+
+@media (max-width: 700px) {
+  .wrap { padding: 0 16px 32px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .top { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar-right { justify-content: stretch; }
+  .search-wrap input { width: 100%; }
+}
+
 .hide { display: none; }
-.header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #161b22; border-bottom: 1px solid #30363d; margin-bottom: 20px; }
-.header h1 { font-size: 18px; }
-.cont { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; }
-.tbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-.tleft { display: flex; gap: 6px; flex-wrap: wrap; }
-.fbtn { padding: 6px 14px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; font-size: 12px; cursor: pointer; }
-.fbtn:hover { border-color: #58a6ff; color: #c9d1d9; }
-.fbtn.on { background: #1f6feb; border-color: #1f6feb; color: #fff; }
-.sbox { padding: 6px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px; width: 200px; }
-.sbox:focus { border-color: #58a6ff; outline: none; }
-.pages { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
-.pbtn { padding: 4px 10px; background: #21262d; border: 1px solid #30363d; border-radius: 4px; color: #8b949e; font-size: 12px; cursor: pointer; }
-.pbtn:hover { border-color: #58a6ff; color: #c9d1d9; }
-.pbtn.cur { background: #1f6feb; border-color: #1f6feb; color: #fff; cursor: default; }
-.gen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 700px) { .gen-grid { grid-template-columns: 1fr; } }
-.cbox { width: 16px; height: 16px; cursor: pointer; accent-color: #58a6ff; }
-.copied-msg { position: fixed; bottom: 20px; right: 20px; background: #238636; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13px; z-index: 999; opacity: 0; transition: opacity 0.3s; }
-.copied-msg.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<div id="copiedToast" class="copied-msg">Copied!</div>
+<div id="toast" class="toast">copied</div>
+
+<!-- LOGIN -->
 
 <div id="loginScreen" class="login-wrap">
   <div class="login-box">
-    <h1>Key System</h1>
-    <p>Admin Dashboard</p>
-    <input type="password" id="loginPass" placeholder="Admin password" autofocus>
-    <button onclick="login()">Unlock</button>
-    <div class="login-err" id="loginError">Wrong password</div>
+    <h1>key system</h1>
+    <p>admin panel</p>
+    <input type="password" id="loginPass" placeholder="admin key" autofocus>
+    <button onclick="login()">unlock</button>
+    <div class="login-err" id="loginError">invalid key</div>
   </div>
 </div>
 
+<!-- DASHBOARD -->
+
 <div id="app" class="hide">
-  <div class="header">
-    <h1>Key System</h1>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span class="small" id="headerStats"></span>
-      <span class="small" id="dbStatus" style="color:#8b949e"></span>
-      <button class="btn btn-sec" onclick="logout()">Logout</button>
-    </div>
-  </div>
-  <div class="cont">
-    <div class="grid">
-      <div class="card"><div class="stat-num" id="statTotal">-</div><div class="stat-label">Total Keys</div></div>
-      <div class="card"><div class="stat-num" id="statActive">-</div><div class="stat-label">Activated</div></div>
-      <div class="card"><div class="stat-num" id="statRevoked">-</div><div class="stat-label">Revoked</div></div>
-      <div class="card"><div class="stat-num" id="statUnused">-</div><div class="stat-label">Unactivated</div></div>
+  <div class="wrap">
+
+    <!-- HEADER -->
+    <div class="top">
+      <div class="top-left">
+        <h1>key<span>.</span>system</h1>
+      </div>
+      <div class="top-right">
+        <span id="headerStats"></span>
+        <span class="db-badge" id="dbStatus">DB: --</span>
+        <button class="logout-btn" onclick="logout()">exit</button>
+      </div>
     </div>
 
-    <div class="card" style="margin-bottom:16px">
-      <div class="gen-grid">
-        <div>
-          <div class="small" style="margin-bottom:6px">Generate Key</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;gap:8px">
-              <input type="text" id="genNote" placeholder="note" style="flex:1">
-              <input type="number" id="genMaxUses" placeholder="max uses" style="width:90px" min="0">
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">--</div>
+        <div class="stat-label">total keys</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statActive">--</div>
+        <div class="stat-label">activated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statRevoked">--</div>
+        <div class="stat-label">revoked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statUnused">--</div>
+        <div class="stat-label">unactivated</div>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div class="sect">
+      <div class="sect-h">generate</div>
+      <div class="sect-b">
+        <div class="gen-grid">
+          <div class="gen-group">
+            <div class="gg-label">single key</div>
+            <div class="in-row">
+              <input type="text" id="genNote" placeholder="note">
+              <input type="number" id="genMaxUses" placeholder="max uses" min="0">
             </div>
-            <div style="display:flex;gap:8px">
-              <input type="datetime-local" id="genExpires" style="flex:1">
-              <button class="btn btn-pri" onclick="generateKey()" style="white-space:nowrap">Generate</button>
+            <div class="in-row">
+              <input type="datetime-local" id="genExpires">
+              <button class="btn btn-gold" onclick="generateKey()">generate</button>
             </div>
+            <div class="msg" id="genResult"></div>
           </div>
-          <div class="msg" id="genResult"></div>
-        </div>
-        <div>
-          <div class="small" style="margin-bottom:6px">Bulk Generate</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;gap:8px">
+          <div class="gen-group">
+            <div class="gg-label">bulk</div>
+            <div class="in-row">
               <input type="number" id="bulkCount" value="5" min="1" max="100" style="width:60px">
-              <input type="text" id="bulkNote" placeholder="note" style="flex:1">
-              <input type="number" id="bulkMaxUses" placeholder="max uses" style="width:90px" min="0">
+              <input type="text" id="bulkNote" placeholder="note">
+              <input type="number" id="bulkMaxUses" placeholder="max uses" min="0" style="width:90px">
             </div>
-            <div style="display:flex;gap:8px">
-              <input type="datetime-local" id="bulkExpires" style="flex:1">
-              <button class="btn btn-pri" onclick="bulkGenerate()">Generate x<span id="bulkLabel">5</span></button>
+            <div class="in-row">
+              <input type="datetime-local" id="bulkExpires">
+              <button class="btn btn-gold" onclick="bulkGenerate()">generate x<span id="bulkLabel">5</span></button>
             </div>
+            <div class="msg" id="bulkResult"></div>
           </div>
-          <div class="msg" id="bulkResult"></div>
-        </div>
-        <div>
-          <div class="small" style="margin-bottom:6px">Revoke / Restore / Delete</div>
-          <div class="row">
-            <input type="text" id="manageKey" placeholder="AC-..." style="flex:1;font-family:monospace">
-            <button class="btn btn-red" onclick="revokeKey()">Revoke</button>
-            <button class="btn btn-pri" onclick="unrevokeKey()">Restore</button>
-            <button class="btn btn-red" onclick="deleteKey()">Delete</button>
-          </div>
-          <div class="msg" id="manageResult"></div>
-        </div>
-        <div>
-          <div class="small" style="margin-bottom:6px">Reset HWID</div>
-          <div class="row">
-            <input type="text" id="resetKey" placeholder="AC-..." style="flex:1;font-family:monospace">
-            <button class="btn btn-sec" onclick="resetHWID()">Reset HWID</button>
-          </div>
-          <div class="msg" id="resetResult"></div>
-          <div class="small" style="margin-top:4px">Allows key to activate on a new machine</div>
         </div>
       </div>
     </div>
 
-    <div class="tbar">
-      <div class="tleft">
-        <button class="fbtn on" onclick="setFilter('all',this)">All</button>
-        <button class="fbtn" onclick="setFilter('active',this)">Active</button>
-        <button class="fbtn" onclick="setFilter('revoked',this)">Revoked</button>
-        <button class="fbtn" onclick="setFilter('activated',this)">Activated</button>
-        <button class="fbtn" onclick="setFilter('unactivated',this)">Unactivated</button>
-        <button class="btn btn-org" onclick="exportCSV()" style="font-size:12px;padding:6px 10px">CSV</button>
-        <button class="btn btn-sec" onclick="purgeExpired()" style="font-size:12px;padding:6px 10px">Purge Expired</button>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="bulkRevokeBtn" class="btn btn-red" style="font-size:11px;padding:4px 8px;display:none" onclick="bulkRevoke()">Revoke Selected</button>
-        <button id="bulkDeleteBtn" class="btn btn-red" style="font-size:11px;padding:4px 8px;display:none" onclick="bulkDelete()">Delete Selected</button>
-        <input type="text" class="sbox" id="searchBox" placeholder="Search..." oninput="searchChanged()">
+    <!-- MANAGE -->
+    <div class="sect">
+      <div class="sect-h">manage keys</div>
+      <div class="sect-b">
+        <div class="mgmt-grid">
+          <div class="mgmt-item">
+            <div class="mi-label">revoke / restore / delete</div>
+            <div class="in-row">
+              <input type="text" id="manageKey" placeholder="AC-...">
+              <button class="btn btn-red" onclick="revokeKey()">revoke</button>
+              <button class="btn btn-green" onclick="unrevokeKey()">restore</button>
+              <button class="btn btn-red" onclick="deleteKey()">delete</button>
+            </div>
+            <div class="msg" id="manageResult"></div>
+          </div>
+          <div class="mgmt-item">
+            <div class="mi-label">reset hwid</div>
+            <div class="in-row">
+              <input type="text" id="resetKey" placeholder="AC-...">
+              <button class="btn btn-sec" onclick="resetHWID()">reset</button>
+            </div>
+            <div class="msg" id="resetResult"></div>
+            <div class="mgmt-hint">allows a key to activate on a new machine</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="card" style="padding:0;overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:30px"><input type="checkbox" class="cbox" id="selectAll" onchange="toggleAll()"></th>
-            <th onclick="sortBy('key')">Key</th>
-            <th onclick="sortBy('status')">Status</th>
-            <th onclick="sortBy('hwid')">HWID</th>
-            <th onclick="sortBy('note')">Note</th>
-            <th onclick="sortBy('maxUses')">Uses</th>
-            <th onclick="sortBy('createdAt')">Created</th>
-            <th onclick="sortBy('expires')">Expires</th>
-            <th onclick="sortBy('lastSeen')">Last Seen</th>
-            <th onclick="sortBy('lastIp')">Last IP</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+    <!-- FILTERS / SEARCH -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="filter-btn on" onclick="setFilter('all',this)">all</button>
+        <button class="filter-btn" onclick="setFilter('active',this)">active</button>
+        <button class="filter-btn" onclick="setFilter('revoked',this)">revoked</button>
+        <button class="filter-btn" onclick="setFilter('activated',this)">activated</button>
+        <button class="filter-btn" onclick="setFilter('unactivated',this)">unactivated</button>
+        <button class="btn btn-sec btn-sm" onclick="exportCSV()" style="margin-left:4px">csv</button>
+        <button class="btn btn-sec btn-sm" onclick="purgeExpired()">purge expired</button>
+      </div>
+      <div class="toolbar-right">
+        <button id="bulkRevokeBtn" class="btn btn-red btn-sm" style="display:none" onclick="bulkRevoke()">revoke selected</button>
+        <button id="bulkDeleteBtn" class="btn btn-red btn-sm" style="display:none" onclick="bulkDelete()">delete selected</button>
+        <div class="search-wrap">
+          <input type="text" id="searchBox" placeholder="search..." oninput="searchChanged()">
+        </div>
+      </div>
     </div>
 
-    <div id="pagination" class="tbar" style="margin-top:12px"></div>
+    <!-- KEYS TABLE -->
+    <div class="sect" style="padding:0">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32px"><input type="checkbox" class="cbox" id="selectAll" onchange="toggleAll()"></th>
+              <th onclick="sortBy('key')">key</th>
+              <th onclick="sortBy('status')">status</th>
+              <th onclick="sortBy('hwid')">hwid</th>
+              <th onclick="sortBy('note')">note</th>
+              <th onclick="sortBy('maxUses')">uses</th>
+              <th onclick="sortBy('createdAt')">created</th>
+              <th onclick="sortBy('expires')">expires</th>
+              <th onclick="sortBy('lastSeen')">last seen</th>
+              <th onclick="sortBy('lastIp')">last ip</th>
+              <th>actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div id="pagination" class="pages"></div>
+
   </div>
 </div>
 
@@ -266,9 +830,12 @@ function load() {
     document.getElementById("headerStats").textContent = (s.total || 0) + " keys";
   });
   api("/api/db-status", {}).then(function(r) {
-    var av = r.available ? "OK" : "DOWN";
-    document.getElementById("dbStatus").textContent = "DB: " + (r.database || "?") + " - Available: " + av;
-    document.getElementById("dbStatus").style.color = r.available ? "#3fb950" : "#f85149";
+    var el = document.getElementById("dbStatus");
+    var db = r.database || "?";
+    var av = r.available ? "ok" : "down";
+    el.textContent = db.toLowerCase() + " / " + av;
+    el.style.color = r.available ? "#86ef86" : "#fca5a5";
+    el.style.borderColor = r.available ? "rgba(101,163,13,0.3)" : "rgba(239,68,68,0.3)";
   });
   fetchKeys();
 }
@@ -290,7 +857,7 @@ function render() {
   var tbody = document.getElementById("tableBody");
 
   if (allKeys.length === 0) {
-    tbody.innerHTML = "<tr><td colspan=\"11\" style=\"text-align:center;padding:32px;color:#8b949e\">No keys found</td></tr>";
+    tbody.innerHTML = "<tr class=\"empty-row\"><td colspan=\"11\">no keys found</td></tr>";
     renderPagination();
     return;
   }
@@ -310,7 +877,7 @@ function render() {
   for (var i = 0; i < allKeys.length; i++) {
     var k = allKeys[i];
     var st = k.revoked ? "revoked" : k.activated ? "active" : "unused";
-    var sl = k.revoked ? "Revoked" : k.activated ? "Active" : "Unused";
+    var sl = k.revoked ? "revoked" : k.activated ? "active" : "unused";
     var exp = k.expires ? new Date(k.expires).toLocaleString() : "-";
     var cre = k.createdAt ? new Date(k.createdAt).toLocaleString() : "-";
     var last = k.lastSeen ? new Date(k.lastSeen).toLocaleString() : "-";
@@ -320,23 +887,23 @@ function render() {
 
     html += "<tr>";
     html += "<td><input type=\"checkbox\" class=\"cbox\" value=\"" + k.key + "\" onchange=\"updateBulkBtns()\"></td>";
-    html += "<td class=\"key-txt\" onclick=\"copyKey('" + k.key + "')\" title=\"Click to copy\">" + k.key + "</td>";
+    html += "<td class=\"key-cell\" onclick=\"copyKey('" + k.key + "')\" title=\"copy\">" + k.key + "</td>";
     html += "<td><span class=\"badge badge-" + st + "\">" + sl + "</span></td>";
-    html += "<td class=\"hwid-txt\" title=\"" + (k.hwid || "") + "\">" + hw + "</td>";
-    html += "<td class=\"small\">" + (k.note || "-") + "</td>";
-    html += "<td style=\"text-align:center;color:#8b949e;font-size:12px\">" + uses + "</td>";
-    html += "<td class=\"small\">" + cre + "</td>";
-    html += "<td class=\"small\">" + exp + "</td>";
-    html += "<td class=\"small\">" + last + "</td>";
-    html += "<td class=\"ip-txt\" title=\"" + (k.lastIp || "") + "\">" + ip + "</td>";
-    html += "<td class=\"actions\">";
+    html += "<td class=\"hwid-cell\" title=\"" + (k.hwid || "") + "\">" + hw + "</td>";
+    html += "<td class=\"note-cell\">" + (k.note || "-") + "</td>";
+    html += "<td class=\"uses-cell\">" + uses + "</td>";
+    html += "<td class=\"date-cell\">" + cre + "</td>";
+    html += "<td class=\"date-cell\">" + exp + "</td>";
+    html += "<td class=\"date-cell\">" + last + "</td>";
+    html += "<td class=\"ip-cell\" title=\"" + (k.lastIp || "") + "\">" + ip + "</td>";
+    html += "<td class=\"action-cell\">";
     if (k.revoked) {
-      html += "<button class=\"btn btn-pri\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doUnrevoke('" + k.key + "')\">Restore</button>";
+      html += "<button class=\"btn btn-green btn-sm\" onclick=\"doUnrevoke('" + k.key + "')\">restore</button>";
     } else {
-      html += "<button class=\"btn btn-red\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doRevoke('" + k.key + "')\">Revoke</button>";
+      html += "<button class=\"btn btn-red btn-sm\" onclick=\"doRevoke('" + k.key + "')\">revoke</button>";
     }
-    html += "<button class=\"btn btn-sec\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doReset('" + k.key + "')\">HWID</button>";
-    html += "<button class=\"btn btn-red\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doDelete('" + k.key + "')\">Del</button>";
+    html += "<button class=\"btn btn-sec btn-sm\" onclick=\"doReset('" + k.key + "')\">hwid</button>";
+    html += "<button class=\"btn btn-red btn-sm\" onclick=\"doDelete('" + k.key + "')\">del</button>";
     html += "</td></tr>";
   }
   tbody.innerHTML = html;
@@ -348,21 +915,20 @@ function render() {
 function renderPagination() {
   var el = document.getElementById("pagination");
   if (totalPages <= 1) { el.innerHTML = ""; return; }
-  var html = "<div class=\"pages\">";
-  html += "<span class=\"small\" style=\"margin-right:8px\">Page " + curPage + "/" + totalPages + " (" + totalKeys + " total)</span>";
+  var html = "";
+  html += "<span class=\"page-info\">" + curPage + " / " + totalPages + "  (" + totalKeys + ")</span>";
 
-  if (curPage > 1) html += "<button class=\"pbtn\" onclick=\"goPage(1)\">First</button>";
-  if (curPage > 1) html += "<button class=\"pbtn\" onclick=\"goPage(" + (curPage - 1) + ")\">Prev</button>";
+  if (curPage > 1) html += "<button class=\"page-btn\" onclick=\"goPage(1)\"><<</button>";
+  if (curPage > 1) html += "<button class=\"page-btn\" onclick=\"goPage(" + (curPage - 1) + ")\"><</button>";
 
   var start = Math.max(1, curPage - 2);
   var end = Math.min(totalPages, curPage + 2);
   for (var p = start; p <= end; p++) {
-    html += "<button class=\"pbtn" + (p === curPage ? " cur" : "") + "\" onclick=\"goPage(" + p + ")\">" + p + "</button>";
+    html += "<button class=\"page-btn" + (p === curPage ? " cur" : "") + "\" onclick=\"goPage(" + p + ")\">" + p + "</button>";
   }
 
-  if (curPage < totalPages) html += "<button class=\"pbtn\" onclick=\"goPage(" + (curPage + 1) + ")\">Next</button>";
-  if (curPage < totalPages) html += "<button class=\"pbtn\" onclick=\"goPage(" + totalPages + ")\">Last</button>";
-  html += "</div>";
+  if (curPage < totalPages) html += "<button class=\"page-btn\" onclick=\"goPage(" + (curPage + 1) + ")\">></button>";
+  if (curPage < totalPages) html += "<button class=\"page-btn\" onclick=\"goPage(" + totalPages + ")\">>></button>";
   el.innerHTML = html;
 }
 
@@ -379,7 +945,7 @@ function searchChanged() {
 function setFilter(f, btn) {
   filter = f;
   curPage = 1;
-  var btns = document.querySelectorAll(".fbtn");
+  var btns = document.querySelectorAll(".filter-btn");
   for (var i = 0; i < btns.length; i++) btns[i].classList.remove("on");
   btn.classList.add("on");
   fetchKeys();
@@ -415,7 +981,7 @@ function getSelectedKeys() {
 function bulkRevoke() {
   var keys = getSelectedKeys();
   if (keys.length === 0) return;
-  if (!confirm("Revoke " + keys.length + " selected keys?")) return;
+  if (!confirm("revoke " + keys.length + " selected keys?")) return;
   api("/api/bulk-revoke", { keys: keys }).then(function(r) {
     if (r.success) load();
   });
@@ -424,7 +990,7 @@ function bulkRevoke() {
 function bulkDelete() {
   var keys = getSelectedKeys();
   if (keys.length === 0) return;
-  if (!confirm("DELETE " + keys.length + " selected keys? This cannot be undone!")) return;
+  if (!confirm("delete " + keys.length + " selected keys? cannot be undone")) return;
   api("/api/bulk-delete", { keys: keys }).then(function(r) {
     if (r.success) load();
   });
@@ -432,9 +998,7 @@ function bulkDelete() {
 
 function copyKey(key) {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(key).then(function() {
-      showCopied();
-    });
+    navigator.clipboard.writeText(key).then(function() { showToast(); });
   } else {
     var ta = document.createElement("textarea");
     ta.value = key;
@@ -442,12 +1006,12 @@ function copyKey(key) {
     ta.select();
     document.execCommand("copy");
     document.body.removeChild(ta);
-    showCopied();
+    showToast();
   }
 }
 
-function showCopied() {
-  var el = document.getElementById("copiedToast");
+function showToast() {
+  var el = document.getElementById("toast");
   el.classList.add("show");
   setTimeout(function() { el.classList.remove("show"); }, 1500);
 }
@@ -469,8 +1033,8 @@ function exportCSV() {
 
 function doRevoke(key) { api("/api/revoke", { key: key }).then(load); }
 function doUnrevoke(key) { api("/api/unrevoke", { key: key }).then(load); }
-function doReset(key) { if (confirm("Reset HWID for " + key + "?")) api("/api/reset-hwid", { key: key }).then(load); }
-function doDelete(key) { if (confirm("Delete " + key + "?")) api("/api/delete", { key: key }).then(load); }
+function doReset(key) { if (confirm("reset hwid for " + key + "?")) api("/api/reset-hwid", { key: key }).then(load); }
+function doDelete(key) { if (confirm("delete " + key + "?")) api("/api/delete", { key: key }).then(load); }
 
 function generateKey() {
   var expires = document.getElementById("genExpires").value;
@@ -497,7 +1061,7 @@ function bulkGenerate() {
   var maxUses = parseInt(document.getElementById("bulkMaxUses").value) || null;
   api("/api/generate-bulk", { count: Math.min(count, 100), expires: expires ? new Date(expires).toISOString() : null, note: note, maxUses: maxUses }).then(function(r) {
     var el = document.getElementById("bulkResult");
-    el.textContent = r.success ? "Generated " + r.count + " keys" : "error";
+    el.textContent = r.success ? "generated " + r.count + " keys" : "error";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
   });
@@ -508,7 +1072,7 @@ function revokeKey() {
   if (!key) return;
   api("/api/revoke", { key: key }).then(function(r) {
     var el = document.getElementById("manageResult");
-    el.textContent = r.success ? "Revoked" : "Not found";
+    el.textContent = r.success ? "revoked" : "not found";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
   });
@@ -519,7 +1083,7 @@ function unrevokeKey() {
   if (!key) return;
   api("/api/unrevoke", { key: key }).then(function(r) {
     var el = document.getElementById("manageResult");
-    el.textContent = r.success ? "Restored" : "Not found";
+    el.textContent = r.success ? "restored" : "not found";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
   });
@@ -527,10 +1091,10 @@ function unrevokeKey() {
 
 function deleteKey() {
   var key = document.getElementById("manageKey").value.trim();
-  if (!key || !confirm("Delete " + key + "?")) return;
+  if (!key || !confirm("delete " + key + "?")) return;
   api("/api/delete", { key: key }).then(function(r) {
     var el = document.getElementById("manageResult");
-    el.textContent = r.success ? "Deleted" : "Not found";
+    el.textContent = r.success ? "deleted" : "not found";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
   });
@@ -538,17 +1102,17 @@ function deleteKey() {
 
 function resetHWID() {
   var key = document.getElementById("resetKey").value.trim();
-  if (!key || !confirm("Reset HWID for " + key + "?")) return;
+  if (!key || !confirm("reset hwid for " + key + "?")) return;
   api("/api/reset-hwid", { key: key }).then(function(r) {
     var el = document.getElementById("resetResult");
-    el.textContent = r.success ? "HWID reset" : "Not found";
+    el.textContent = r.success ? "hwid reset" : "not found";
     el.className = "msg" + (r.success ? "" : " err");
     if (r.success) load();
   });
 }
 
 function purgeExpired() {
-  if (!confirm("Delete all expired keys?")) return;
+  if (!confirm("delete all expired keys?")) return;
   api("/api/purge-expired", {}).then(function(r) {
     if (r.success) { load(); }
   });
