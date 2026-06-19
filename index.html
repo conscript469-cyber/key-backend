@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Key Admin</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0d1117; color: #c9d1d9; }
+input, select, button { font-family: inherit; }
+.card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-num { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 13px; color: #8b949e; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.row input, .row select { padding: 8px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; }
+.row input:focus, .row select:focus { border-color: #58a6ff; outline: none; }
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+.btn-pri { background: #238636; color: #fff; }
+.btn-pri:hover { background: #2ea043; }
+.btn-red { background: #da3633; color: #fff; }
+.btn-red:hover { background: #f85149; }
+.btn-sec { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+.btn-sec:hover { background: #30363d; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 10px 12px; font-size: 12px; color: #8b949e; border-bottom: 1px solid #21262d; cursor: pointer; }
+th:hover { color: #c9d1d9; }
+td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #21262d; }
+tr:hover td { background: #1c2128; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.badge-active { background: #1b3a2d; color: #3fb950; }
+.badge-revoked { background: #3d1f1e; color: #f85149; }
+.badge-unused { background: #3d2e00; color: #d29922; }
+.key-txt { font-family: monospace; font-size: 12px; color: #f0883e; }
+.hwid-txt { font-family: monospace; font-size: 11px; color: #58a6ff; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.small { font-size: 11px; color: #8b949e; }
+.actions { display: flex; gap: 4px; }
+.msg { font-size: 12px; color: #3fb950; margin-top: 4px; }
+.msg.err { color: #f85149; }
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+.login-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 40px; width: 360px; text-align: center; }
+.login-box h1 { font-size: 22px; margin-bottom: 4px; }
+.login-box p { color: #8b949e; font-size: 13px; margin-bottom: 24px; }
+.login-box input { width: 100%; padding: 10px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 14px; margin-bottom: 12px; }
+.login-box input:focus { border-color: #58a6ff; outline: none; }
+.login-box button { width: 100%; padding: 10px; background: #238636; border: none; border-radius: 6px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.login-box button:hover { background: #2ea043; }
+.login-err { color: #f85149; font-size: 13px; margin-top: 10px; display: none; }
+.hide { display: none; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #161b22; border-bottom: 1px solid #30363d; margin-bottom: 20px; }
+.header h1 { font-size: 18px; }
+.cont { max-width: 1400px; margin: 0 auto; padding: 0 24px 40px; }
+.tbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.tleft { display: flex; gap: 6px; flex-wrap: wrap; }
+.fbtn { padding: 6px 14px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #8b949e; font-size: 12px; cursor: pointer; }
+.fbtn:hover { border-color: #58a6ff; color: #c9d1d9; }
+.fbtn.on { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+.sbox { padding: 6px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px; width: 200px; }
+.sbox:focus { border-color: #58a6ff; outline: none; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap">
+  <div class="login-box">
+    <h1>Key System</h1>
+    <p>Admin Dashboard</p>
+    <input type="password" id="loginPass" placeholder="Admin password" autofocus>
+    <button onclick="login()">Unlock</button>
+    <div class="login-err" id="loginError">Wrong password</div>
+  </div>
+</div>
+
+<div id="app" class="hide">
+  <div class="header">
+    <h1>Key System</h1>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="small" id="headerStats"></span>
+      <button class="btn btn-sec" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div class="cont">
+    <div class="grid">
+      <div class="card"><div class="stat-num" id="statTotal">-</div><div class="stat-label">Total Keys</div></div>
+      <div class="card"><div class="stat-num" id="statActive">-</div><div class="stat-label">Activated</div></div>
+      <div class="card"><div class="stat-num" id="statRevoked">-</div><div class="stat-label">Revoked</div></div>
+      <div class="card"><div class="stat-num" id="statUnused">-</div><div class="stat-label">Unactivated</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div class="small" style="margin-bottom:6px">Generate Key</div>
+          <div class="row">
+            <input type="datetime-local" id="genExpires" style="flex:1">
+            <input type="text" id="genNote" placeholder="note" style="flex:1">
+            <button class="btn btn-pri" onclick="generateKey()">Generate</button>
+          </div>
+          <div class="msg" id="genResult"></div>
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px">Bulk Generate</div>
+          <div class="row">
+            <input type="number" id="bulkCount" value="5" min="1" max="100" style="width:60px">
+            <input type="datetime-local" id="bulkExpires" style="flex:1">
+            <button class="btn btn-pri" onclick="bulkGenerate()">Generate x<span id="bulkLabel">5</span></button>
+          </div>
+          <div class="msg" id="bulkResult"></div>
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px">Revoke / Restore / Delete</div>
+          <div class="row">
+            <input type="text" id="manageKey" placeholder="AC-..." style="flex:1;font-family:monospace">
+            <button class="btn btn-red" onclick="revokeKey()">Revoke</button>
+            <button class="btn btn-pri" onclick="unrevokeKey()">Restore</button>
+            <button class="btn btn-red" onclick="deleteKey()">Delete</button>
+          </div>
+          <div class="msg" id="manageResult"></div>
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px">Reset HWID</div>
+          <div class="row">
+            <input type="text" id="resetKey" placeholder="AC-..." style="flex:1;font-family:monospace">
+            <button class="btn btn-sec" onclick="resetHWID()">Reset HWID</button>
+          </div>
+          <div class="msg" id="resetResult"></div>
+          <div class="small" style="margin-top:4px">Allows key to activate on a new machine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbar">
+      <div class="tleft">
+        <button class="fbtn on" onclick="setFilter('all',this)">All</button>
+        <button class="fbtn" onclick="setFilter('active',this)">Active</button>
+        <button class="fbtn" onclick="setFilter('revoked',this)">Revoked</button>
+        <button class="fbtn" onclick="setFilter('activated',this)">Activated</button>
+        <button class="fbtn" onclick="setFilter('unactivated',this)">Unactivated</button>
+      </div>
+      <input type="text" class="sbox" id="searchBox" placeholder="Search..." oninput="render()">
+    </div>
+
+    <div class="card" style="padding:0;overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('key')">Key</th>
+            <th onclick="sortBy('status')">Status</th>
+            <th onclick="sortBy('hwid')">HWID</th>
+            <th onclick="sortBy('note')">Note</th>
+            <th onclick="sortBy('createdAt')">Created</th>
+            <th onclick="sortBy('expires')">Expires</th>
+            <th onclick="sortBy('lastSeen')">Last Seen</th>
+            <th onclick="sortBy('usageCount')">Uses</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+var keys = [];
+var filter = "all";
+var sf = "createdAt";
+var sd = -1;
+var token = localStorage.getItem("token");
+
+function api(path, body) {
+  return fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-token": token },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); });
+}
+
+if (token) {
+  document.getElementById("loginScreen").classList.add("hide");
+  document.getElementById("app").classList.remove("hide");
+  load();
+}
+
+function login() {
+  var pass = document.getElementById("loginPass").value;
+  api("/api/login", { password: pass }).then(function(r) {
+    if (r.success) {
+      token = r.token;
+      localStorage.setItem("token", token);
+      document.getElementById("loginScreen").classList.add("hide");
+      document.getElementById("app").classList.remove("hide");
+      load();
+    } else {
+      document.getElementById("loginError").style.display = "block";
+    }
+  });
+}
+
+document.getElementById("loginPass").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") login();
+});
+
+function logout() {
+  token = null;
+  localStorage.removeItem("token");
+  location.reload();
+}
+
+document.getElementById("bulkCount").addEventListener("input", function() {
+  document.getElementById("bulkLabel").textContent = this.value;
+});
+
+function load() {
+  api("/api/stats", {}).then(function(s) {
+    document.getElementById("statTotal").textContent = s.total || 0;
+    document.getElementById("statActive").textContent = s.activated || 0;
+    document.getElementById("statRevoked").textContent = s.revoked || 0;
+    document.getElementById("statUnused").textContent = s.unactivated || 0;
+    document.getElementById("headerStats").textContent = (s.total || 0) + " keys";
+  });
+  api("/api/list", {}).then(function(r) {
+    if (r.success) { keys = r.keys; render(); }
+  });
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  var btns = document.querySelectorAll(".fbtn");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("on");
+  btn.classList.add("on");
+  render();
+}
+
+function sortBy(field) {
+  if (sf === field) sd *= -1;
+  else { sf = field; sd = -1; }
+  render();
+}
+
+function render() {
+  var search = document.getElementById("searchBox").value.toLowerCase();
+  var f = keys;
+
+  if (filter === "active") f = f.filter(function(k) { return !k.revoked; });
+  else if (filter === "revoked") f = f.filter(function(k) { return k.revoked; });
+  else if (filter === "activated") f = f.filter(function(k) { return k.activated; });
+  else if (filter === "unactivated") f = f.filter(function(k) { return !k.activated; });
+
+  if (search) {
+    f = f.filter(function(k) {
+      return k.key.toLowerCase().includes(search) ||
+        (k.hwid && k.hwid.toLowerCase().includes(search)) ||
+        (k.note && k.note.toLowerCase().includes(search));
+    });
+  }
+
+  f.sort(function(a, b) {
+    var va = a[sf], vb = b[sf];
+    if (sf === "status") {
+      va = a.revoked ? "revoked" : a.activated ? "active" : "unused";
+      vb = b.revoked ? "revoked" : b.activated ? "active" : "unused";
+    }
+    if (!va) va = "";
+    if (!vb) vb = "";
+    return va < vb ? sd : va > vb ? -sd : 0;
+  });
+
+  var tbody = document.getElementById("tableBody");
+  if (f.length === 0) {
+    tbody.innerHTML = "<tr><td colspan=\"9\" style=\"text-align:center;padding:32px;color:#8b949e\">No keys found</td></tr>";
+    return;
+  }
+
+  var html = "";
+  for (var i = 0; i < f.length; i++) {
+    var k = f[i];
+    var st = k.revoked ? "revoked" : k.activated ? "active" : "unused";
+    var sl = k.revoked ? "Revoked" : k.activated ? "Active" : "Unused";
+    var exp = k.expires ? new Date(k.expires).toLocaleString() : "-";
+    var cre = k.createdAt ? new Date(k.createdAt).toLocaleString() : "-";
+    var last = k.lastSeen ? new Date(k.lastSeen).toLocaleString() : "-";
+    var hw = k.hwid || "-";
+
+    html += "<tr>";
+    html += "<td class=\"key-txt\">" + k.key + "</td>";
+    html += "<td><span class=\"badge badge-" + st + "\">" + sl + "</span></td>";
+    html += "<td class=\"hwid-txt\" title=\"" + (k.hwid || "") + "\">" + hw + "</td>";
+    html += "<td class=\"small\">" + (k.note || "-") + "</td>";
+    html += "<td class=\"small\">" + cre + "</td>";
+    html += "<td class=\"small\">" + exp + "</td>";
+    html += "<td class=\"small\">" + last + "</td>";
+    html += "<td style=\"text-align:center;color:#8b949e;font-size:12px\">" + (k.usageCount || 0) + "</td>";
+    html += "<td class=\"actions\">";
+    if (k.revoked) {
+      html += "<button class=\"btn btn-pri\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doUnrevoke('" + k.key + "')\">Restore</button>";
+    } else {
+      html += "<button class=\"btn btn-red\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doRevoke('" + k.key + "')\">Revoke</button>";
+    }
+    html += "<button class=\"btn btn-sec\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doReset('" + k.key + "')\">HWID</button>";
+    html += "<button class=\"btn btn-red\" style=\"padding:4px 8px;font-size:11px\" onclick=\"doDelete('" + k.key + "')\">Del</button>";
+    html += "</td></tr>";
+  }
+  tbody.innerHTML = html;
+}
+
+function doRevoke(key) { api("/api/revoke", { key: key }).then(load); }
+function doUnrevoke(key) { api("/api/unrevoke", { key: key }).then(load); }
+function doReset(key) { if (confirm("Reset HWID for " + key + "?")) api("/api/reset-hwid", { key: key }).then(load); }
+function doDelete(key) { if (confirm("Delete " + key + "?")) api("/api/delete", { key: key }).then(load); }
+
+function generateKey() {
+  var expires = document.getElementById("genExpires").value;
+  var note = document.getElementById("genNote").value;
+  api("/api/generate", { expires: expires ? new Date(expires).toISOString() : null, note: note }).then(function(r) {
+    var el = document.getElementById("genResult");
+    el.textContent = r.success ? r.key : "error";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+function bulkGenerate() {
+  var count = parseInt(document.getElementById("bulkCount").value) || 1;
+  var expires = document.getElementById("bulkExpires").value;
+  api("/api/generate-bulk", { count: Math.min(count, 100), expires: expires ? new Date(expires).toISOString() : null }).then(function(r) {
+    var el = document.getElementById("bulkResult");
+    el.textContent = r.success ? "Generated " + r.count + " keys" : "error";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+function revokeKey() {
+  var key = document.getElementById("manageKey").value.trim();
+  if (!key) return;
+  api("/api/revoke", { key: key }).then(function(r) {
+    var el = document.getElementById("manageResult");
+    el.textContent = r.success ? "Revoked" : "Not found";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+function unrevokeKey() {
+  var key = document.getElementById("manageKey").value.trim();
+  if (!key) return;
+  api("/api/unrevoke", { key: key }).then(function(r) {
+    var el = document.getElementById("manageResult");
+    el.textContent = r.success ? "Restored" : "Not found";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+function deleteKey() {
+  var key = document.getElementById("manageKey").value.trim();
+  if (!key || !confirm("Delete " + key + "?")) return;
+  api("/api/delete", { key: key }).then(function(r) {
+    var el = document.getElementById("manageResult");
+    el.textContent = r.success ? "Deleted" : "Not found";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+function resetHWID() {
+  var key = document.getElementById("resetKey").value.trim();
+  if (!key || !confirm("Reset HWID for " + key + "?")) return;
+  api("/api/reset-hwid", { key: key }).then(function(r) {
+    var el = document.getElementById("resetResult");
+    el.textContent = r.success ? "HWID reset" : "Not found";
+    el.className = "msg" + (r.success ? "" : " err");
+    if (r.success) load();
+  });
+}
+
+setInterval(load, 15000);
+</script>
+</body>
+</html>
