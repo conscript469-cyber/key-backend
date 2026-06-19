@@ -851,7 +851,7 @@ function api(path, body) {
   }).then(function(r) {
     if (r.status === 401) { logout(); return {}; }
     return r.json();
-  });
+  }).catch(function() { return {}; });
 }
 
 if (token) {

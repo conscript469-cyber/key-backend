@@ -65,11 +65,10 @@ function makeEntry(key, expires, note, maxUses) {
   };
 }
 
-let activeToken = null;
+var activeToken = crypto.createHash("sha256").update(ADMIN_PASS).digest("hex").slice(0, 32);
 
 app.post("/api/login", (req, res) => {
   if (req.body.password === ADMIN_PASS) {
-    activeToken = crypto.randomBytes(16).toString("hex");
     res.json({ success: true, token: activeToken });
   } else {
     res.json({ success: false });
