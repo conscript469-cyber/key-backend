@@ -776,28 +776,42 @@ function toast(msg, type = "info") {
 }
 
 async function api(path, body = {}) {
-  const res = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
+  try {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch(e) {
+    return { error: e.message };
+  }
 }
 
 async function apiGet(path) {
-  const res = await fetch(path);
-  return res.json();
+  try {
+    const res = await fetch(path, { credentials: 'include' });
+    return await res.json();
+  } catch(e) {
+    return { error: e.message };
+  }
 }
 
 // Login
 async function login() {
-  const pass = document.getElementById('loginPass').value;
-  const res = await api('/api/login', { password: pass });
-  if (res.success) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-    loadData();
-  } else {
+  try {
+    const pass = document.getElementById('loginPass').value;
+    const res = await api('/api/login', { password: pass });
+    if (res.success) {
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      loadData();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('loginError').textContent = 'Error: ' + e.message;
     document.getElementById('loginError').style.display = 'block';
   }
 }
