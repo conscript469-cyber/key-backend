@@ -263,7 +263,9 @@ function load() {
     document.getElementById("headerStats").textContent = (s.total || 0) + " keys";
   });
   api("/api/db-status", {}).then(function(r) {
-    document.getElementById("dbStatus").textContent = "DB: " + (r.database || "?");
+    var av = r.available ? "OK" : "DOWN";
+    document.getElementById("dbStatus").textContent = "DB: " + (r.database || "?") + " - Available: " + av;
+    document.getElementById("dbStatus").style.color = r.available ? "#3fb950" : "#f85149";
   });
   fetchKeys();
 }

@@ -420,8 +420,20 @@ app.post("/api/purge-expired", auth, async (req, res) => {
   } catch (e) { res.json({ success: false, message: "server error" }); }
 });
 
-app.get("/api/db-status", auth, (req, res) => {
-  res.json({ database: usingPg ? "PostgreSQL" : "JSON file", usingPg });
+app.get("/api/db-status", auth, async (req, res) => {
+  var available = false;
+  if (usingPg) {
+    try {
+      await db.query("SELECT 1");
+      available = true;
+    } catch (e) { available = false; }
+  } else {
+    try {
+      fs.accessSync(DB_PATH, fs.constants.R_OK | fs.constants.W_OK);
+      available = true;
+    } catch (e) { available = false; }
+  }
+  res.json({ database: usingPg ? "PostgreSQL" : "JSON file", usingPg, available });
 });
 
 app.get("/api/stats", auth, async (req, res) => {
