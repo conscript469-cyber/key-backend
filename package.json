@@ -1,0 +1,15 @@
+{
+  "name": "ac-key-backend",
+  "version": "2.0.0",
+  "description": "Animal Company Key Auth System - Admin Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "crypto": "^1.0.1"
+  }
+}
