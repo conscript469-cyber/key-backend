@@ -340,7 +340,7 @@ body {
 .login-card h1 {
   font-size: 24px;
   font-weight: 800;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 8px;
@@ -358,11 +358,11 @@ body {
   transition: border-color .2s;
   margin-bottom: 16px;
 }
-.login-card input:focus { border-color: #f59e0b; }
+.login-card input:focus { border-color: #ec4899; }
 .login-card button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -388,7 +388,7 @@ header {
 header h1 {
   font-size: 20px;
   font-weight: 700;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -478,10 +478,10 @@ header .subtitle { color: #666; font-size: 12px; margin-left: 8px; font-weight: 
   flex: 1;
   min-width: 120px;
 }
-.inline-form input:focus, .inline-form select:focus { border-color: #f59e0b; }
+.inline-form input:focus, .inline-form select:focus { border-color: #ec4899; }
 .inline-form button {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -532,7 +532,7 @@ header .subtitle { color: #666; font-size: 12px; margin-left: 8px; font-weight: 
 }
 .filter-btn:hover { border-color: #444; color: #ccc; }
 .filter-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  background: linear-gradient(135deg, #ec4899, #8b5cf6);
   border-color: transparent;
   color: #fff;
 }
@@ -546,7 +546,7 @@ header .subtitle { color: #666; font-size: 12px; margin-left: 8px; font-weight: 
   outline: none;
   width: 220px;
 }
-.search-box:focus { border-color: #f59e0b; }
+.search-box:focus { border-color: #ec4899; }
 
 /* Table */
 .table-wrap {
